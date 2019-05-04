@@ -398,6 +398,8 @@ static noinline void __ref rest_init(void)
 	 * the init task will end up wanting to create kthreads, which, if
 	 * we schedule it before we create kthreadd, will OOPS.
 	 */
+	// 创建第二个进程-1号进程，1号进程对于操作系统来讲，有划时代的意义，它将运行一
+	// 个用户进程。
 	pid = kernel_thread(kernel_init, NULL, CLONE_FS);
 	/*
 	 * Pin init on the boot CPU. Task migration is not properly working
@@ -410,6 +412,7 @@ static noinline void __ref rest_init(void)
 	rcu_read_unlock();
 
 	numa_default_policy();
+	// 创建2号进程
 	pid = kernel_thread(kthreadd, NULL, CLONE_FS | CLONE_FILES);
 	rcu_read_lock();
 	kthreadd_task = find_task_by_pid_ns(pid, &init_pid_ns);
@@ -506,11 +509,14 @@ static void __init mm_init(void)
 	ioremap_huge_init();
 }
 
+// 内核启动的入口函数
 asmlinkage __visible void __init start_kernel(void)
 {
 	char *command_line;
 	char *after_dashes;
 
+	// init_task：0号进程。这是唯一一个没有通过fork或者kernel_thread产生的
+	// 进程，是进程列表的第一个。
 	set_task_stack_end_magic(&init_task);
 	smp_setup_processor_id();
 	debug_objects_early_init();
@@ -564,8 +570,8 @@ asmlinkage __visible void __init start_kernel(void)
 	pidhash_init();
 	vfs_caches_init_early();
 	sort_main_extable();
-	trap_init();
-	mm_init();
+	trap_init(); // 里面设置了很多的中断门，用于处理各种中断。
+	mm_init(); // 初始化内存管理模块
 
 	ftrace_init();
 
@@ -577,7 +583,7 @@ asmlinkage __visible void __init start_kernel(void)
 	 * timer interrupt). Full topology setup happens at smp_init()
 	 * time - but meanwhile we still have a functioning scheduler.
 	 */
-	sched_init();
+	sched_init(); // 初始化调度模块
 	/*
 	 * Disable preemption - early bootup scheduling is extremely
 	 * fragile until we cpu_idle() for the first time.
@@ -677,7 +683,7 @@ asmlinkage __visible void __init start_kernel(void)
 	key_init();
 	security_init();
 	dbg_late_init();
-	vfs_caches_init();
+	vfs_caches_init(); // 初始化基于内存的文件系统rootfs
 	pagecache_init();
 	signals_init();
 	proc_root_init();
@@ -698,7 +704,7 @@ asmlinkage __visible void __init start_kernel(void)
 	}
 
 	/* Do the rest non-__init'ed, we're now alive */
-	rest_init();
+	rest_init(); // 其他方面的初始化
 }
 
 /* Call all constructor functions linked into the kernel. */

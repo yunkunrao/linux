@@ -552,14 +552,18 @@ struct task_struct {
 
 	int				wake_cpu;
 #endif
+	// 是否运行在队列上
 	int				on_rq;
 
+ 	// 优先级
 	int				prio;
 	int				static_prio;
 	int				normal_prio;
 	unsigned int			rt_priority;
 
+	// 调度器类
 	const struct sched_class	*sched_class;
+	// 调度实体
 	struct sched_entity		se;
 	struct sched_rt_entity		rt;
 #ifdef CONFIG_CGROUP_SCHED
@@ -576,7 +580,9 @@ struct task_struct {
 	unsigned int			btrace_seq;
 #endif
 
+	// 调度策略
 	unsigned int			policy;
+	// 可以使用哪些cpu
 	int				nr_cpus_allowed;
 	cpumask_t			cpus_allowed;
 
@@ -704,8 +710,8 @@ struct task_struct {
 	/* CLONE_CHILD_CLEARTID: */
 	int __user			*clear_child_tid;
 
-	u64				utime;
-	u64				stime;
+	u64				utime; // 用户态消耗的cpu时间
+	u64				stime; // 内核态消耗的cpu时间
 #ifdef CONFIG_ARCH_HAS_SCALED_CPUTIME
 	u64				utimescaled;
 	u64				stimescaled;
@@ -720,14 +726,14 @@ struct task_struct {
 	atomic_t			tick_dep_mask;
 #endif
 	/* Context switch counts: */
-	unsigned long			nvcsw;
-	unsigned long			nivcsw;
+	unsigned long			nvcsw; // 自愿（voluntary）上下文切换次数
+	unsigned long			nivcsw; // 非自愿（involuntary）上下文切换次数
 
 	/* Monotonic time in nsecs: */
-	u64				start_time;
+	u64				start_time; // 进程启动时间，不包含睡眠时间
 
 	/* Boot based time in nsecs: */
-	u64				real_start_time;
+	u64				real_start_time; // 进程启动时间，包含睡眠时间
 
 	/* MM fault and swap info: this can arguably be seen as either mm-specific or thread-specific: */
 	unsigned long			min_flt;
@@ -744,10 +750,10 @@ struct task_struct {
 	const struct cred __rcu		*ptracer_cred;
 
 	/* Objective and real subjective task credentials (COW): */
-	const struct cred __rcu		*real_cred;
+	const struct cred __rcu		*real_cred; // 谁能操作我
 
 	/* Effective (overridable) subjective task credentials (COW): */
-	const struct cred __rcu		*cred;
+	const struct cred __rcu		*cred; // 我能操作谁
 
 	/*
 	 * executable name, excluding path.

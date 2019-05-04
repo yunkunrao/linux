@@ -1013,6 +1013,7 @@ void __init trap_init(void)
 #endif
 
 #ifdef CONFIG_X86_32
+	// 设置系统调用的中断门
 	set_system_intr_gate(IA32_SYSCALL_VECTOR, entry_INT80_32);
 	set_bit(IA32_SYSCALL_VECTOR, used_vectors);
 #endif
